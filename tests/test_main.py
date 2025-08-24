@@ -59,3 +59,24 @@ def test_read_all_tasks_empty_list():
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_read_all_tasks():
+    """Тест получения списка задач, когда в нем есть данные."""
+    # Создаем несколько задач для теста
+    client.post(
+        "/tasks/", json={"name": "Задача 1", "description": "Описание 1", "in_work": True, "is_finished": False}
+    )
+    client.post(
+        "/tasks/", json={"name": "Задача 2", "description": "Описание 2", "in_work": False, "is_finished": False}
+    )
+
+    response = client.get("/tasks/")
+
+    assert response.status_code == 200
+
+    # Проверяем, что в ответе две задачи
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["name"] == "Задача 1"
+    assert data[1]["name"] == "Задача 2"
