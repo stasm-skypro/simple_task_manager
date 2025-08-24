@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
 
-from models import Tasks
+from src.models import Tasks
 
 # Инициализируем FastAPI приложение
 app = FastAPI()
