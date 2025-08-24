@@ -1,5 +1,5 @@
 # test_main.py
-# from uuid import uuid4
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -117,3 +117,14 @@ def test_read_task_success():
     # Проверяем, что получена нужная задача
     assert data["name"] == "Задача для чтения"
     assert data["uuid"] == task_uuid
+
+
+def test_read_task_not_found():
+    """Тест получения задачи, которой не существует (сценарий ошибки)."""
+    # Используем uuid4 для генерации UUID, которого нет в "базе данных"
+    non_existent_uuid = str(uuid4())
+
+    response = client.get(f"/tasks/{non_existent_uuid}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Задача не найдена"
