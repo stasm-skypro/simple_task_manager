@@ -65,10 +65,22 @@ def test_read_all_tasks():
     """Тест получения списка задач, когда в нем есть данные."""
     # Создаем несколько задач для теста
     client.post(
-        "/tasks/", json={"name": "Задача 1", "description": "Описание 1", "in_work": True, "is_finished": False}
+        "/tasks/",
+        json={
+            "name": "Задача 1",
+            "description": "Описание 1",
+            "in_work": True,
+            "is_finished": False,
+        },
     )
     client.post(
-        "/tasks/", json={"name": "Задача 2", "description": "Описание 2", "in_work": False, "is_finished": False}
+        "/tasks/",
+        json={
+            "name": "Задача 2",
+            "description": "Описание 2",
+            "in_work": False,
+            "is_finished": False,
+        },
     )
 
     response = client.get("/tasks/")
@@ -80,3 +92,28 @@ def test_read_all_tasks():
     assert len(data) == 2
     assert data[0]["name"] == "Задача 1"
     assert data[1]["name"] == "Задача 2"
+
+
+def test_read_task_success():
+    """Тест получения одной задачи по UUID (успешный сценарий)."""
+    # Создаем задачу, чтобы получить ее uuid
+    create_response = client.post(
+        "/tasks/",
+        json={
+            "name": "Задача для чтения",
+            "description": "Описание",
+            "in_work": False,
+            "is_finished": False,
+        },
+    )
+    task_uuid = create_response.json()["uuid"]
+
+    # Получаем задачу по uuid
+    response = client.get(f"/tasks/{task_uuid}")
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Проверяем, что получена нужная задача
+    assert data["name"] == "Задача для чтения"
+    assert data["uuid"] == task_uuid
