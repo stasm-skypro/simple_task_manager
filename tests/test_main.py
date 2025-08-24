@@ -51,3 +51,11 @@ def test_create_task():
     # Проверяем, что задача добавилась в "базу данных"
     assert len(tasks_db) == 1
     assert str(tasks_db[0].uuid) == data["uuid"]
+
+
+def test_read_all_tasks_empty_list():
+    """Тест получения списка задач, когда он пуст."""
+    response = client.get("/tasks/")
+
+    assert response.status_code == 200
+    assert response.json() == []

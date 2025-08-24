@@ -28,17 +28,6 @@ profile = "black"
 line_length = 119
 multi_line_output = 3
 include_trailing_comma = true
-known_django = ["django"]
-known_first_party = ["apps", "habit_tracker"]
-known_third_party = ["rest_framework"]
-sections = [
-    "FUTURE",
-    "STDLIB",
-    "DJANGO",
-    "THIRDPARTY",
-    "FIRSTPARTY",
-    "LOCALFOLDER",
-]
 skip_gitignore = true
 skip = ["migrations"]
 
@@ -58,5 +47,4 @@ show_error_codes = true
 follow_imports = "silent"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
