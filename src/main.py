@@ -37,7 +37,7 @@ async def read_all_tasks() -> list[Tasks]:
 @app.get("/tasks/{task_id}", response_model=Tasks)
 async def read_task(task_id: UUID) -> Tasks:
     """
-    Возвращает одну задачу по её uuid.
+    Возвращает одну задачу по её UUID.
     """
     # Ищем задачу по uuid в списке
     for task in tasks_db:
@@ -64,7 +64,7 @@ async def update_task(task_id: UUID, update_task: Tasks) -> Tasks:
     raise HTTPException(status_code=404, detail="Задача не найдена")
 
 
-@app.delete("/tasks/{id}", status_code=204)
+@app.delete("/tasks/{task_id}", status_code=204)
 async def delete_task(task_id: UUID) -> None:
     """
     Удаляет задачу по ее UUID.

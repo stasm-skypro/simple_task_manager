@@ -176,3 +176,36 @@ def test_update_task_not_found():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Задача не найдена"
+
+
+def test_delete_task_success():
+    """Тест удаления задачи (успешный сценарий)."""
+    # Создаем задачу, которую будем удалять
+    create_response = client.post(
+        "/tasks/",
+        json={"name": "Задача для удаления", "description": "Описание", "in_work": False, "is_finished": False},
+    )
+    task_uuid = create_response.json()["uuid"]
+
+    response = client.delete(f"/tasks/{task_uuid}")
+
+    # Проверяем, что ответ имеет статус 204 No Content
+    assert response.status_code == 204
+
+    # Проверяем, что задача была удалена из "базы данных"
+    assert len(tasks_db) == 0
+
+    # Дополнительная проверка: пытаемся получить удаленную задачу
+    get_response = client.get(f"/tasks/{task_uuid}")
+    assert get_response.status_code == 404
+
+
+def test_delete_task_not_found():
+    """Тест удаления несуществующей задачи (сценарий ошибки)."""
+    # Используем uuid4 для генерации UUID, которого нет в "базе данных"
+    non_existent_uuid = str(uuid4())
+
+    response = client.delete(f"/tasks/{non_existent_uuid}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Task not found"
