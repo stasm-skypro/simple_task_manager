@@ -48,3 +48,4 @@ follow_imports = "silent"
 
 [tool.pytest.ini_options]
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--cov=src --cov-report=html"
