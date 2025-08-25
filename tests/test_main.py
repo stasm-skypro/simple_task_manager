@@ -128,3 +128,31 @@ def test_read_task_not_found():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Задача не найдена"
+
+
+def test_update_task_success():
+    """Тест обновления задачи (успешный сценарий)."""
+    # Создаем задачу для обновления
+    create_response = client.post(
+        "/tasks/",
+        json={"name": "Старая задача", "description": "Старое описание", "in_work": False, "is_finished": False},
+    )
+    task_uuid = create_response.json()["uuid"]
+
+    # Новые данные для обновления
+    updated_payload = {
+        "uuid": task_uuid,
+        "name": "Обновленная задача",
+        "description": "Обновленное описание",
+        "in_work": True,
+        "is_finished": False,
+    }
+
+    response = client.put(f"/tasks/{task_uuid}", json=updated_payload)
+
+    assert response.status_code == 200
+    data = response.json()
+
+    # Проверяем, что данные были обновлены
+    assert data["name"] == "Обновленная задача"
+    assert data["description"] == "Обновленное описание"
