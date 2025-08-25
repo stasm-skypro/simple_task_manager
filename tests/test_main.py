@@ -156,3 +156,23 @@ def test_update_task_success():
     # Проверяем, что данные были обновлены
     assert data["name"] == "Обновленная задача"
     assert data["description"] == "Обновленное описание"
+
+
+def test_update_task_not_found():
+    """Тест обновления несуществующей задачи (сценарий ошибки)."""
+    # Используем uuid4 для генерации UUID, которого нет в "базе данных"
+    non_existent_uuid = str(uuid4())
+
+    # Новые данные для обновления
+    updated_payload = {
+        "uuid": non_existent_uuid,
+        "name": "Попытка обновления",
+        "description": "Описание",
+        "in_work": False,
+        "is_finished": False,
+    }
+
+    response = client.put(f"/tasks/{non_existent_uuid}", json=updated_payload)
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Задача не найдена"
