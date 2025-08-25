@@ -1,7 +1,7 @@
 [project]
 name = "task_manager"
 version = "0.0.1"
-description = "The 'Task Manager' test task with tests"
+description = "The 'Task Manager' practice task with tests"
 authors = [{ name = "Станислав Маяцкий", email = "stasm226@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
