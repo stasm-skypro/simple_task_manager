@@ -43,6 +43,32 @@ user_db = [
 # Создаем "базу данных" в памяти в виде списка объектов Tasks
 tasks_db: list[Tasks] = []
 
+# -----------------
+# Функции аутентификации
+# -----------------
+
+
+def get_user(db: list[UserInDB], username: str) -> UserInDB | None:
+    """
+    Ищет пользователя по user_id в базе данных.
+    """
+    for user in db:
+        if user.username == username:
+            return user
+    return None
+
+
+def authenticate_user(db: list[UserInDB], username: str, password: str) -> UserInDB | None:
+    """
+    Проверяет имя пользователя и пароль.
+    """
+    user = get_user(db, username)
+    if not user:
+        return None
+    if not pwd_context.verify(password, user.password):
+        return None
+    return user
+
 
 @app.post("/tasks/", response_model=Tasks, status_code=201)
 async def create_task(new_task: Tasks) -> Tasks:
