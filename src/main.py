@@ -1,15 +1,46 @@
 # main.py
+import os
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
 
-from src.models import Tasks
+from src.models import Tasks, UserInDB
 
 # Инициализируем FastAPI приложение
 app = FastAPI()
 
+# ------------------------------------------------------------
+# JWT-аутентификация
+# ------------------------------------------------------------
+
+# Для реального проекта серктеный ключ долджен быть в переменных окружения
+SECRET_KEY = os.getenv("SECRET_KEY", "123456789")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Контекст для хэшированнвх паролей
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Схема для аутентийикации по OAuth2 с паролем
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+# Создаём "базу данных" в памяти в виде списка объектов User
+user_db = [
+    UserInDB(
+        id=1,
+        username="admin",
+        password=pwd_context.hash("strong_admin_password"),
+    ),
+    UserInDB(
+        id=2,
+        username="user",
+        password=pwd_context.hash("strong_user_password"),
+    ),
+]
+
 # Создаем "базу данных" в памяти в виде списка объектов Tasks
-# Это временное решение
 tasks_db: list[Tasks] = []
 
 
