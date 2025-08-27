@@ -5,11 +5,11 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from src.models import Tasks, TokenData, User, UserInDB
+from src.models import Tasks, Token, TokenData, User, UserInDB
 
 # Инициализируем FastAPI приложение
 app = FastAPI()
@@ -120,6 +120,24 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 # -----------------
 # Эндпоинты аутентификации
 # -----------------
+
+
+@app.post("/token", response_model=Token)
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+    """
+    Получает JWT-токен.
+    """
+    user = authenticate_user(user_db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверное имя пользователя или пароль",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+    return Token(access_token=access_token, token_type="Bearer")
+
 
 # -----------------
 # Эндпоинты задач
