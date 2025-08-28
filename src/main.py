@@ -198,15 +198,20 @@ async def read_task(task_id: UUID) -> Task:
 
 
 @app.put("/tasks/{task_id}", response_model=Task)
-async def update_task(task_id: UUID, update_task: Task) -> Task:
+async def update_task(
+    task_id: UUID, update_task: Task, current_user: Annotated[User, Depends(get_current_user)]
+) -> Task:
     """
-    Обновляет существующую задачу по ее UUID.
+    Обновляет существующую задачу по ее UUID. Доступ только для владельца.
 
     Получаем UUID из пути и новые данные для задачи из тела запроса.
     """
     # Ищем задачу по uuid и обновляем её данные
     for index, task in enumerate(tasks_db):
         if task.uuid == task_id:
+            # Проверяем,что текущий пользователь является владельцем задачи.
+            if task.owner != current_user.id:
+                raise HTTPException(status_code=403, detail="Недостаточно прав для выполнения операции")
             # обновляем задачу в списке
             tasks_db[index] = update_task
             return update_task
@@ -222,8 +227,8 @@ async def delete_task(task_id: UUID, current_user: Annotated[User, Depends(get_c
     # Ищем задачу по uuid и удаляем её
     for index, task in enumerate(tasks_db):
         if task.uuid == task_id:
-            # Теперь проверяем,является ли текущий пользователь владельцем задачи.
-            if current_user.id != task.owner:
+            # Проверяем,что текущий пользователь является владельцем задачи.
+            if task.owner != current_user.id:
                 raise HTTPException(status_code=403, detail="Недостаточно прав для выполнения операции")
             tasks_db.pop(index)
             # Возвращаем пустой ответ с кодом 204 No Content
