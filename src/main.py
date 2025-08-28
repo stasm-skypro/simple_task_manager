@@ -46,19 +46,19 @@ user_db = [
 # Создаем "базу данных" в памяти в виде списка объектов Task
 tasks_db: list[Task] = [
     Task(
-        uuid="3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        uuid=UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
         name="Дописать тестовое задание",
         description="Дописать аутентификацию",
-        created_at="2025-08-27T18:33:18.086Z",
+        created_at=datetime.fromisoformat("2025-08-27T18:33:18.086Z"),
         in_work=False,
         is_finished=True,
         owner=1,
     ),
     Task(
-        uuid="5fa15f67-3784-4662-b3fc-6c653f69afa2",
+        uuid=UUID("5fa15f67-3784-4662-b3fc-6c653f69afa2"),
         name="Дописать README",
         description="Дописать в README примеры JSON-ответов аутентификации",
-        created_at="2025-08-26T18:33:18.086Z",
+        created_at=datetime.fromisoformat("2025-08-26T18:33:18.086Z"),
         in_work=True,
         is_finished=False,
         owner=2,
