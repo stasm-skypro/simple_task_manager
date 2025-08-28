@@ -164,14 +164,16 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 
 @app.post("/tasks/", response_model=Task, status_code=201)
-async def create_task(new_task: Task) -> Task:
+async def create_task(new_task: Task, current_user: Annotated[User, Depends(get_current_user)]) -> Task:
     """
     Создает новую задачу и добавляет ее в "базу данных".
+    Доступ только для авторизованных пользователей.
 
     FastAPI автоматически проверит данные в запросе
     согласно Pydantic-модели Task и сгенерирует UUID
     и timestamp, если они не предоставлены.
     """
+    new_task.owner = current_user.id  # Присваиваем id владельца
     tasks_db.append(new_task)
     return new_task
 
@@ -179,7 +181,7 @@ async def create_task(new_task: Task) -> Task:
 @app.get("/tasks/", response_model=list[Task])
 async def read_all_() -> list[Task]:
     """
-    Возвращает полный список всех задач.
+    Возвращает полный список всех задач. Доступ для всех.
     """
     return tasks_db
 
@@ -187,7 +189,7 @@ async def read_all_() -> list[Task]:
 @app.get("/tasks/{task_id}", response_model=Task)
 async def read_task(task_id: UUID) -> Task:
     """
-    Возвращает одну задачу по её UUID.
+    Возвращает одну задачу по её UUID. Доступ для всех.
     """
     # Ищем задачу по uuid в списке
     for task in tasks_db:
