@@ -35,7 +35,7 @@ class TokenData(BaseModel):
     username: str | None = None
 
 
-class Tasks(BaseModel):
+class Task(BaseModel):
     uuid: Annotated[uuid.UUID, Field(default_factory=uuid.uuid4)]
     name: Annotated[str, Field(..., max_length=150)]
     description: Annotated[str, Field(..., max_length=250)]

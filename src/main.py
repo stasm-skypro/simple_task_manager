@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from src.models import Tasks, Token, TokenData, User, UserInDB
+from src.models import Task, Token, TokenData, User, UserInDB
 
 # Инициализируем FastAPI приложение
 app = FastAPI()
@@ -43,8 +43,27 @@ user_db = [
     ),
 ]
 
-# Создаем "базу данных" в памяти в виде списка объектов Tasks
-tasks_db: list[Tasks] = []
+# Создаем "базу данных" в памяти в виде списка объектов Task
+tasks_db: list[Task] = [
+    Task(
+        uuid="3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        name="Дописать тестовое задание",
+        description="Дописать аутентификацию",
+        created_at="2025-08-27T18:33:18.086Z",
+        in_work=False,
+        is_finished=True,
+        owner=1,
+    ),
+    Task(
+        uuid="5fa15f67-3784-4662-b3fc-6c653f69afa2",
+        name="Дописать README",
+        description="Дописать в README примеры JSON-ответов аутентификации",
+        created_at="2025-08-26T18:33:18.086Z",
+        in_work=True,
+        is_finished=False,
+        owner=2,
+    ),
+]
 
 # -----------------
 # Функции аутентификации
@@ -144,29 +163,29 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 # -----------------
 
 
-@app.post("/tasks/", response_model=Tasks, status_code=201)
-async def create_task(new_task: Tasks) -> Tasks:
+@app.post("/tasks/", response_model=Task, status_code=201)
+async def create_task(new_task: Task) -> Task:
     """
     Создает новую задачу и добавляет ее в "базу данных".
 
     FastAPI автоматически проверит данные в запросе
-    согласно Pydantic-модели Tasks и сгенерирует UUID
+    согласно Pydantic-модели Task и сгенерирует UUID
     и timestamp, если они не предоставлены.
     """
     tasks_db.append(new_task)
     return new_task
 
 
-@app.get("/tasks/", response_model=list[Tasks])
-async def read_all_tasks() -> list[Tasks]:
+@app.get("/tasks/", response_model=list[Task])
+async def read_all_() -> list[Task]:
     """
     Возвращает полный список всех задач.
     """
     return tasks_db
 
 
-@app.get("/tasks/{task_id}", response_model=Tasks)
-async def read_task(task_id: UUID) -> Tasks:
+@app.get("/tasks/{task_id}", response_model=Task)
+async def read_task(task_id: UUID) -> Task:
     """
     Возвращает одну задачу по её UUID.
     """
@@ -178,8 +197,8 @@ async def read_task(task_id: UUID) -> Tasks:
     raise HTTPException(status_code=404, detail="Задача не найдена")
 
 
-@app.put("/tasks/{task_id}", response_model=Tasks)
-async def update_task(task_id: UUID, update_task: Tasks) -> Tasks:
+@app.put("/tasks/{task_id}", response_model=Task)
+async def update_task(task_id: UUID, update_task: Task) -> Task:
     """
     Обновляет существующую задачу по ее UUID.
 
@@ -196,15 +215,18 @@ async def update_task(task_id: UUID, update_task: Tasks) -> Tasks:
 
 
 @app.delete("/tasks/{task_id}", status_code=204)
-async def delete_task(task_id: UUID) -> None:
+async def delete_task(task_id: UUID, current_user: Annotated[User, Depends(get_current_user)]) -> None:
     """
-    Удаляет задачу по ее UUID.
+    Удаляет задачу по ее UUID. Доступ толькот для владельца.
     """
     # Ищем задачу по uuid и удаляем её
     for index, task in enumerate(tasks_db):
         if task.uuid == task_id:
+            # Теперь проверяем,является ли текущий пользователь владельцем задачи.
+            if current_user.id != task.owner:
+                raise HTTPException(status_code=403, detail="Недостаточно прав для выполнения операции")
             tasks_db.pop(index)
             # Возвращаем пустой ответ с кодом 204 No Content
             return
     # Если задача не найдена, возвращаем HTTP-ошибку 404
-    raise HTTPException(status_code=404, detail="Task not found")
+    raise HTTPException(status_code=404, detail="Задача не найдена")
